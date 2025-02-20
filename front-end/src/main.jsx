@@ -8,11 +8,11 @@ import Login from './pages/Login';
 import App from './App';
 import Exercises from './pages/Exercises';
 import Nutrition from './pages/Nutrition';
-import Plans from './pages/Plans';
 import Options from './pages/Options';
 import Logs from './pages/Logs';
 import Applayout from './Sheared/Applayout';
 import Main from './pages/Main';
+import Cardio from './pages/Cardio';
 
 const router = createBrowserRouter([
   {
@@ -27,8 +27,8 @@ const router = createBrowserRouter([
       element: <Nutrition />,
     },
     {
-      path: "/plans",
-      element: <Plans />,
+      path: "/cardio",
+      element: <Cardio />,
     },
     {
       path: "/option",
