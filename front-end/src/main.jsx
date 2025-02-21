@@ -13,12 +13,14 @@ import Logs from './pages/Logs';
 import Applayout from './Sheared/Applayout';
 import Main from './pages/Main';
 import Cardio from './pages/Cardio';
+import { Provider } from 'react-redux'
+import store from './app/store';
 
 const router = createBrowserRouter([
   {
-    path:"/",
-    element:<Applayout/>,
-    children:[ {
+    path: "/",
+    element: <Applayout />,
+    children: [{
       path: "/exercises",
       element: <Exercises />,
     },
@@ -42,11 +44,11 @@ const router = createBrowserRouter([
       path: "/main",
       element: <Main />,
     },
-  ]
+    ]
   },
   {
-    path:"/",
-    element:<App/>
+    path: "/",
+    element: <App />
   },
   {
     path: "/signin",
@@ -56,12 +58,14 @@ const router = createBrowserRouter([
     path: "/login",
     element: <Login />,
   },
-  
- 
+
+
 ]);
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <Provider store={store}>
+      <RouterProvider router={router} />
+    </Provider>
   </StrictMode>
 );
