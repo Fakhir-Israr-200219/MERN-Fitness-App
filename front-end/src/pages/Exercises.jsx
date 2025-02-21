@@ -13,6 +13,7 @@ import narrow_grip_Chin_Up from '../assets/Exercises/narrow_grip_Chin-Up.png'
 import shoulder_press from '../assets/Exercises/shoulder_press.gif'
 import arnold_press from '../assets/Exercises/arnold_press.png'
 import AnimatedLine from '../components/AnimatedLine'
+import { RiAddFill } from "react-icons/ri";
 
 const Exercises = () => {
 
@@ -207,6 +208,18 @@ const Exercises = () => {
             </div>
             <div onClick={() => handleAddClick("Arnold Press")} className='cursor-pointer  btn font-bold bg-[#ed563b] w-[80%]  text-center rounded-xl'>
               Add
+            </div>
+          </div>
+        </div>
+
+
+        <div className='row flex justify-center items-center'>
+          <div className='card flex flex-col justify-between items-center border-2 border-black rounded-md w-40  pt-2 pb-4 mr-2 ml-2 mt-4'>
+            <div className='w-[100%] text-center bg-black font-bold text-white pt-0 mb-3'>
+              <p className='text-sm'>Add New Cardio</p>
+            </div>
+            <div className='image w-30 h-30 min-h-32 text-7xl text-center flex justify-around items-center border-2 border-[#ed563b] rounded-full'>
+              <RiAddFill />
             </div>
           </div>
         </div>

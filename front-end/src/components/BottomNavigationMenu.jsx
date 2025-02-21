@@ -8,7 +8,7 @@ import { IoIosBody } from "react-icons/io";
 
 const BottomNavigationMenu = () => {
     return (
-        <div className='bo_nav border-1 border-red-500 flex flex-row justify-center items-center space-x-4 py-3 bg-[#ed563b] w-[100vw] absolute bottom-0 rounded-xl'>
+        <div className='bo_nav border-1 border-red-500 flex flex-row justify-center items-center space-x-4 py-3 bg-[#ed563b] w-[100vw] fixed bottom-0 rounded-xl'>
             <Link to="/exercises">
                 <div className='bo_nav_item flex flex-col justify-center items-center p-4 pt-4 rounded-full active:bg-[#eb8d7c]'>
                     <div className='icon'><MdOutlineFitnessCenter /></div>
