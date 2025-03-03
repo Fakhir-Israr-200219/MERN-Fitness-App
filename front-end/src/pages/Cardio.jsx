@@ -16,6 +16,7 @@ import { RiAddFill } from "react-icons/ri";
 
 const Cardio = () => {
   const [showModal, setShowModal] = useState(false);
+  const [addCardioModal, setAddCardioModal] = useState(false);
   const [selectedExercise, setSelectedExercise] = useState('');
 
   const [formData, setFormData] = useState({
@@ -27,6 +28,9 @@ const Cardio = () => {
   const handleAddClick = (exerciseName) => {
     setSelectedExercise(exerciseName);
     setShowModal(true);
+  };
+  const handleAddCardioClick = (exerciseName) => {
+    setAddCardioModal(true)
   };
 
   const handleFormSubmit = (e) => {
@@ -184,7 +188,7 @@ const Cardio = () => {
           </div>
         </div>
 
-        <div className='row flex justify-center items-center'>
+        <div className='row flex justify-center items-center' onClick={() => handleAddCardioClick()}>
           <div className='card flex flex-col justify-between items-center border-2 border-black rounded-md w-40  pt-2 pb-4 mr-2 ml-2 mt-4'>
             <div className='w-[100%] text-center bg-black font-bold text-white pt-0 mb-3'>
               <p className='text-sm'>Add New Cardio</p>
@@ -264,6 +268,9 @@ const Cardio = () => {
             </div>
           </div>
         )}
+
+        
+
       </div>
 
     </div>
