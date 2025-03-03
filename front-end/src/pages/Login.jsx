@@ -1,8 +1,38 @@
-import React from 'react';
-import logo from '../assets/logo_black.png';
-import { Link } from 'react-router-dom';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import logo from "../assets/logo_black.png";
 
 const Login = () => {
+  const navigate = useNavigate(); // Hook for navigation
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleLogin = async () => {
+    try {
+      const response = await axios.post("http://localhost:5000/user/login", {
+        email,
+        password,
+      });
+  
+      // Extract token from response
+      const token = response.data.accessToken; // FIX: Correct key name
+      console.log("Login successful:", response.data);
+  
+      // Save token in localStorage
+      localStorage.setItem("token", token);
+  
+      // Redirect to dashboard or home
+      navigate("/exercises"); 
+    } catch (error) {
+      console.error("Login failed:", error);
+      setError("Invalid email or password. Please try again.");
+    }
+  };
+  
+
   return (
     <div className="login flex flex-col justify-center items-center min-h-screen">
       <div className="logo h-[289px]">
@@ -10,39 +40,35 @@ const Login = () => {
       </div>
 
       <div className="form w-[90vw] m-auto mt-1 flex flex-col justify-center items-center">
-        {/* Username or Email Field */}
+        {/* Email Field */}
         <div className="w-full max-w-sm min-w-[200px] my-4">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder=" "
-              className="peer w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-            />
-            <label className="absolute cursor-text bg-white px-1 left-2.5 top-2.5 text-slate-400 text-sm transition-all transform origin-left peer-placeholder-shown:top-2.5 peer-placeholder-shown:left-2.5 peer-focus:-top-2 peer-focus:left-2.5 peer-focus:text-xs peer-focus:text-slate-400 peer-focus:scale-90">
-              Username or Email
-            </label>
-          </div>
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="peer w-full bg-transparent border border-gray-300 rounded-md px-3 py-2"
+          />
         </div>
 
         {/* Password Field */}
         <div className="w-full max-w-sm min-w-[200px] my-4">
-          <div className="relative">
-            <input
-              type="password"
-              placeholder=" "
-              className="peer w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-            />
-            <label className="absolute cursor-text bg-white px-1 left-2.5 top-2.5 text-slate-400 text-sm transition-all transform origin-left peer-placeholder-shown:top-2.5 peer-placeholder-shown:left-2.5 peer-focus:-top-2 peer-focus:left-2.5 peer-focus:text-xs peer-focus:text-slate-400 peer-focus:scale-90">
-              Password
-            </label>
-          </div>
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="peer w-full bg-transparent border border-gray-300 rounded-md px-3 py-2"
+          />
         </div>
 
+        {error && <p className="text-red-500">{error}</p>}
+
         {/* Login Button */}
-        <p className="p-2 m-2 mb-2">Go to <Link  to="/signin" className='text-[#ed563b]'>Sign In</Link></p>
         <button
           type="button"
-          className="mt-2 min-w-[200px] py-2.5 px-5 mb-2 text-sm font-medium text-black focus:outline-none bg-[#ed563b] rounded-lg border border-gray-800 hover:bg-black hover:text-[#ed563b] focus:z-10 focus:ring-4 focus:ring-gray-700 dark:focus:ring-gray-600 dark:bg-black dark:text-[#ed563b] dark:border-gray-600 dark:hover:text-black dark:hover:bg-[#ed563b]"
+          onClick={handleLogin}
+          className="mt-2 min-w-[200px] py-2.5 px-5 text-sm font-medium text-white bg-[#ed563b] rounded-lg hover:bg-black hover:text-[#ed563b]"
         >
           Login
         </button>

@@ -1,76 +1,144 @@
-import React from 'react'
-import logo from '../assets/logo_black.png'
-import { Link } from 'react-router-dom'
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import axios from "axios";  // Import Axios
+import logo from "../assets/logo_black.png";
+import { useNavigate } from "react-router-dom";
 
 const Signin = () => {
-    return (
-        <div className='signin  flex flex-col justify-center items-center'>
+    const navigate = useNavigate(); 
+    const [formData, setFormData] = useState({
+        username: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+        profilePic: null,
+    });
 
-            <div className='logo h-[289px]'>
-                <img src={logo} alt="" />
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
+
+    // Handle form input changes
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    // Handle file input separately
+    const handleFileChange = (e) => {
+        setFormData({ ...formData, profilePic: e.target.files[0] });
+    };
+
+    // Handle form submission
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        if (formData.password !== formData.confirmPassword) {
+            alert("Passwords do not match!");
+            return;
+        }
+
+        const formDataToSend = new FormData();
+        formDataToSend.append("userName", formData.username);
+        formDataToSend.append("email", formData.email);
+        formDataToSend.append("password", formData.password);
+        if (formData.profilePic) {
+            formDataToSend.append("profile_image", formData.profilePic);
+        }
+
+        setIsLoading(true);
+        setError(null);
+
+        try {
+            const response = await axios.post("http://localhost:5000/user/register", formDataToSend, {
+                headers: { "Content-Type": "multipart/form-data" },
+            });
+
+            console.log("User registered:", response.data);
+            // alert("Registration Successful!");
+            navigate("/login");
+        } catch (err) {
+            console.error("Registration failed:", err);
+            setError(err.response?.data?.message || "Something went wrong");
+            alert("Failed to register. Try again.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    return (
+        <div className="signin flex flex-col justify-center items-center">
+            <div className="logo h-[289px]">
+                <img src={logo} alt="Logo" />
             </div>
 
-            <div className='form w-[90vw] m-auto flex flex-col justify-center items-center'>
+            <form onSubmit={handleSubmit} className="form w-[90vw] m-auto flex flex-col justify-center items-center">
+                <div className="w-full max-w-sm my-4">
+                    <input
+                        type="text"
+                        name="username"
+                        value={formData.username}
+                        onChange={handleChange}
+                        placeholder="Enter User Name"
+                        className="w-full border px-3 py-2 rounded-md"
+                    />
+                </div>
 
-                <div class="w-full max-w-sm min-w-[200px] my-4">
-                    <div class="relative">
-                        <input
-                            class="peer w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-                        />
-                        <label class="absolute cursor-text bg-white px-1 left-2.5 top-2.5 text-slate-400 text-sm transition-all transform origin-left peer-focus:-top-2 peer-focus:left-2.5 peer-focus:text-xs peer-focus:text-slate-400 peer-focus:scale-90">
-                            Enter User Name
-                        </label>
-                    </div>
+                <div className="w-full max-w-sm my-4">
+                    <input
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        placeholder="Enter Email Address"
+                        className="w-full border px-3 py-2 rounded-md"
+                    />
                 </div>
-                <div class="w-full max-w-sm min-w-[200px] my-4">
-                    <div class="relative">
-                        <input
-                            class="peer w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-                        />
-                        <label class="absolute cursor-text bg-white px-1 left-2.5 top-2.5 text-slate-400 text-sm transition-all transform origin-left peer-focus:-top-2 peer-focus:left-2.5 peer-focus:text-xs peer-focus:text-slate-400 peer-focus:scale-90">
-                            Enter Email Address
-                        </label>
-                    </div>
+
+                <div className="w-full max-w-sm my-4">
+                    <input
+                        type="password"
+                        name="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        placeholder="Enter Password"
+                        className="w-full border px-3 py-2 rounded-md"
+                    />
                 </div>
-                <div class="w-full max-w-sm min-w-[200px] my-4">
-                    <div class="relative">
-                        <input
-                            class="peer w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-                        />
-                        <label class="absolute cursor-text bg-white px-1 left-2.5 top-2.5 text-slate-400 text-sm transition-all transform origin-left peer-focus:-top-2 peer-focus:left-2.5 peer-focus:text-xs peer-focus:text-slate-400 peer-focus:scale-90">
-                            Enter Password
-                        </label>
-                    </div>
+
+                <div className="w-full max-w-sm my-4">
+                    <input
+                        type="password"
+                        name="confirmPassword"
+                        value={formData.confirmPassword}
+                        onChange={handleChange}
+                        placeholder="Confirm Password"
+                        className="w-full border px-3 py-2 rounded-md"
+                    />
                 </div>
-                <div class="w-full max-w-sm min-w-[200px] my-4">
-                    <div class="relative">
-                        <input
-                            class="peer w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-                        />
-                        <label class="absolute cursor-text bg-white px-1 left-2.5 top-2.5 text-slate-400 text-sm transition-all transform origin-left peer-focus:-top-2 peer-focus:left-2.5 peer-focus:text-xs peer-focus:text-slate-400 peer-focus:scale-90">
-                            Conform Password
-                        </label>
-                    </div>
+
+                <div className="w-full max-w-sm my-4">
+                    <input
+                        type="file"
+                        onChange={handleFileChange}
+                        className="w-full border px-3 py-2 rounded-md"
+                    />
                 </div>
-                <div class="w-full max-w-sm min-w-[200px] my-4">
-                    <div class="relative">
-                        <input
-                            type="file"
-                            class="peer w-full bg-transparent text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow file:border-0 file:bg-transparent file:text-slate-600 file:mr-2"
-                        />
-                        <label class="absolute cursor-text bg-white px-1 left-2.5 top-2.5 text-slate-400 text-sm transition-all transform origin-left peer-focus:-top-2 peer-focus:left-2.5 peer-focus:text-xs peer-focus:text-slate-400 peer-focus:scale-90">
-                            Upload Profile Pic
-                        </label>
-                    </div>
-                </div>
-                <p className="p-2 m-2 mb-2">Go to <Link to="/login" className='text-[#ed563b]'>Sign In</Link></p>
-                <button type="button" class=" mt-2 min-w-[200px] py-2.5 px-5 me-2 mb-2 text-sm font-medium text-black focus:outline-none bg-[#ed563b] rounded-lg border border-gray-800 hover:bg-black hover:text-[#ed563b] focus:z-10 focus:ring-4 focus:ring-gray-700 dark:focus:ring-gray-600 dark:bg-black dark:text-[#ed563b] dark:border-gray-600 dark:hover:text-black dark:hover:bg-[#ed563b]">
-                    Alternative
+
+                <p className="p-2 m-2">
+                    Go to <Link to="/login" className="text-[#ed563b]">Sign In</Link>
+                </p>
+
+                <button
+                    type="submit"
+                    className="mt-2 min-w-[200px] py-2.5 px-5 text-sm font-medium text-black bg-[#ed563b] rounded-lg hover:bg-black hover:text-[#ed563b]"
+                    disabled={isLoading}
+                >
+                    {isLoading ? "Registering..." : "Register"}
                 </button>
 
-            </div>
+                {error && <p className="text-red-500 mt-2">Error: {error}</p>}
+            </form>
         </div>
-    )
-}
+    );
+};
 
-export default Signin
+export default Signin;
