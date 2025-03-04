@@ -24,6 +24,7 @@ app.use("/user", require("./Routes/user.Route"));
 app.use("/api/exercises", require("./Routes/ExerciseRoute"));
 app.use("/api/cardio", require("./Routes/cardioRoute"));
 app.use("/api/workout", require("./Routes/workoutRoute"));
+app.use("/api/log", require("./Controller/LogController"));
 
 app.use(errorHandler);
 

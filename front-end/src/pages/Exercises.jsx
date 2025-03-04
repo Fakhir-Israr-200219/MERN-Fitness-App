@@ -17,11 +17,10 @@ import { RiAddFill } from "react-icons/ri";
 import { useCreateExerciseMutation } from "../app/api/exercisesSclices";
 import { useAddWorkoutMutation, useGetWorkoutsQuery } from "../app/api/workoutSclice";
 import { IoClose } from "react-icons/io5";
-import { useDeleteWorkoutMutation } from "../app/api/workoutSclice"; 
+import { useDeleteWorkoutMutation } from "../app/api/workoutSclice";
 
 const Exercises = () => {
   const { data, error, isLoadingGet, refetch } = useGetWorkoutsQuery({ category: "exercises" });
-
   const [showModal, setShowModal] = useState(false);
   const [selectedExercise, setSelectedExercise] = useState('');
   const [formData, setFormData] = useState({
@@ -153,12 +152,12 @@ const Exercises = () => {
               >
                 {/* Close Icon in Top Right - Always Visible */}
                 <IoClose
-                  className="absolute top-1 right-1 text-gray-600 hover:text-red-500 cursor-pointer text-lg z-10 p-1 bg-white rounded-full"
+                  className="absolute top-2 right-1 text-gray-600 hover:text-red-500 cursor-pointer text-lg z-10 p-1 bg-white rounded-full"
                   onClick={() => handleRemove(exercise._id)} // Replace with your remove function
                 />
 
                 <div className="w-full text-center bg-black font-bold text-white">
-                  <p className="text-sm">{exercise.name}</p>
+                  <p className="text-sm">{exercise.title}</p>
                 </div>
 
                 <div className="image w-30 p-2 h-30 min-h-32">
@@ -166,7 +165,7 @@ const Exercises = () => {
                 </div>
 
                 <div
-                  onClick={() => handleAddClick(exercise.name)}
+                  onClick={() => handleAddClick(exercise.title)}
                   className="cursor-pointer btn font-bold bg-[#ed563b] w-[80%] text-center rounded-xl"
                 >
                   Add
@@ -182,7 +181,7 @@ const Exercises = () => {
           <div className='row flex justify-center items-center' onClick={() => setAddExercises(true)}>
             <div className='card flex flex-col justify-between items-center border-2 border-black rounded-md w-40  pt-2 pb-4 mr-2 ml-2 mt-4'>
               <div className='w-[100%] text-center bg-black font-bold text-white pt-0 mb-3'>
-                <p className='text-sm'>Add New Cardio</p>
+                <p className='text-sm'>Add New Exercises</p>
               </div>
               <div className='image w-30 h-30 min-h-32 text-7xl text-center flex justify-around items-center border-2 border-[#ed563b] rounded-full'>
                 <RiAddFill />

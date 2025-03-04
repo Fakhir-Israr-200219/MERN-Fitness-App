@@ -147,12 +147,12 @@ const Cardio = () => {
               >
                 {/* Close Icon in Top Right - Always Visible */}
                 <IoClose
-                  className="absolute top-1 right-1 text-gray-600 hover:text-red-500 cursor-pointer text-lg z-10 p-1 bg-white rounded-full"
+                  className="absolute top-2 right-1 text-gray-600 hover:text-red-500 cursor-pointer text-lg z-10 p-1 bg-white rounded-full"
                   onClick={() => handleRemove(exercise._id)} // Replace with your remove function
                 />
 
                 <div className="w-full text-center bg-black font-bold text-white">
-                  <p className="text-sm">{exercise.name}</p>
+                  <p className="text-sm">{exercise.title}</p>
                 </div>
 
                 <div className="image w-30 p-2 h-30 min-h-32">
