@@ -14,212 +14,179 @@ import shoulder_press from '../assets/Exercises/shoulder_press.gif'
 import arnold_press from '../assets/Exercises/arnold_press.png'
 import AnimatedLine from '../components/AnimatedLine'
 import { RiAddFill } from "react-icons/ri";
+import { useCreateExerciseMutation } from "../app/api/exercisesSclices";
+import { useAddWorkoutMutation, useGetWorkoutsQuery } from "../app/api/workoutSclice";
+import { IoClose } from "react-icons/io5";
+import { useDeleteWorkoutMutation } from "../app/api/workoutSclice"; 
 
 const Exercises = () => {
+  const { data, error, isLoadingGet, refetch } = useGetWorkoutsQuery({ category: "exercises" });
 
   const [showModal, setShowModal] = useState(false);
   const [selectedExercise, setSelectedExercise] = useState('');
-
   const [formData, setFormData] = useState({
     weight: '',
     reps: '',
-    sets: ''
+    sets: '',
   });
+
+  const [createExercise, { isLoading }] = useCreateExerciseMutation();
 
   const handleAddClick = (exerciseName) => {
     setSelectedExercise(exerciseName);
     setShowModal(true);
   };
 
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
-    // Create a new object that includes the exercise name along with form data
+
     const submissionData = {
       exercise: selectedExercise,
       ...formData,
     };
 
-    console.log('Submission Data:', submissionData);
-
-    // Reset the form and close the modal
-    setFormData({ weight: '', reps: '', sets: '' });
-    setShowModal(false);
+    try {
+      await createExercise(submissionData).unwrap();
+      alert('Exercise added successfully!');
+      setShowModal(false);
+      setFormData({ weight: '', reps: '', sets: '' });
+    } catch (error) {
+      console.error('Error adding exercise:', error);
+      alert(error?.data?.message || 'Something went wrong!');
+    }
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
+  };
+
+  //// working for the addd exercises
+  const [title, setTitle] = useState("");
+  const [image, setImage] = useState(null);
+  const [addExercieseModel, setAddExercises] = useState(false);
+  const [category, setCategory] = useState('exercises');
+  const [addWorkout, { isLoadingcardio }] = useAddWorkoutMutation();
+  const handleFormSubmitExercises = async (e) => {
+    e.preventDefault();
+
+    if (!title || !category || !image) {
+      alert("Please fill in all fields");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("category", category); // Append category
+    formData.append("img", image);
+
+    try {
+      await addWorkout(formData).unwrap(); // Call API to add workout
+      alert("Exercise added successfully!");
+      setAddExercises(false);
+      setTitle(""); // Reset category
+      setImage(null);
+      refetch()
+    } catch (error) {
+      console.error("Failed to add exercise:", error);
+      alert("Error adding exercise.");
+    }
+  };
+  const exercises = [
+    { name: "Incline Bench Press", img: benchpress },
+    { name: "Flat Bench Press", img: flat_benchpress },
+    { name: "Decline Bench Press", img: Decline_Bench_Press },
+    { name: "Close Grip Bench Press", img: Close_Grip_Bench_Press },
+    { name: "Push Up", img: push_up },
+    { name: "Incline Push Up", img: incline_push_up },
+    { name: "Decline Push Up", img: decline_push_up },
+    { name: "Diamond Push Up", img: diamond_push_up },
+    { name: "Standard Pull Up", img: standerd_pull_up },
+    { name: "Narrow Grip Chin Up", img: narrow_grip_Chin_Up },
+  ];
+  const [deleteWorkout] = useDeleteWorkoutMutation();
+
+  const handleRemove = async (id) => {
+    try {
+      await deleteWorkout(id).unwrap(); // Call the API & remove workout
+      refetch()
+    } catch (error) {
+      console.error("Error deleting workout:", error);
+    }
   };
   return (
     <div>
       <AnimatedLine />
 
-      <div className='page-container p-4 m-2 h-[90vh] overflow-scroll flex flex-col justify-between items-center'>
+      <div className='page-container p-4 m-2 h-[90vh] overflow-scroll flex flex-col justify-between items-center md:ml-20'>
+        <div className="flex flex-wrap justify-center">
+          {exercises.map((exercise, index) => (
+            <div
+              key={index}
+              className="card flex flex-col justify-between items-center border-2 border-black rounded-md w-40 pt-2 pb-4 m-2 mt-4"
+            >
+              <div className="w-full text-center bg-black font-bold text-white">
+                <p className="text-sm">{exercise.name}</p>
+              </div>
+              <div className="image w-30 p-2 h-30 min-h-32">
+                <img src={exercise.img} alt={exercise.name} />
+              </div>
+              <div
+                onClick={() => handleAddClick(exercise.name)}
+                className="cursor-pointer btn font-bold bg-[#ed563b] w-[80%] text-center rounded-xl"
+              >
+                Add
+              </div>
+            </div>
+          ))}
+          {/*this data is come from databse*/}
+          {isLoadingGet && <p>Loading...</p>}
+          {error && <p>Error loading exercises.</p>}
+          {data?.data?.length > 0 ? (
+            data.data.map((exercise, index) => (
+              <div
+                key={index}
+                className="card relative flex flex-col justify-between items-center border-2 border-black rounded-md w-40 pt-2 pb-4 m-2 mt-4"
+              >
+                {/* Close Icon in Top Right - Always Visible */}
+                <IoClose
+                  className="absolute top-1 right-1 text-gray-600 hover:text-red-500 cursor-pointer text-lg z-10 p-1 bg-white rounded-full"
+                  onClick={() => handleRemove(exercise._id)} // Replace with your remove function
+                />
 
-        <div className='row flex justify-center items-center'>
-          <div className='card flex flex-col justify-between items-center border-2 border-black rounded-md w-40  pt-2 pb-4 mr-2 ml-2 mt-4'>
-            <div className='w-[100%] text-center bg-black font-bold text-white pt-0'>
-              <p className='text-sm'>Incline Bench Press</p>
-            </div>
-            <div className='image w-30 p-2 h-30 min-h-32'>
-              <img src={benchpress} alt="" />
-            </div>
-            <div onClick={() => handleAddClick("Incline Bench Press")} className='cursor-pointer btn font-bold bg-[#ed563b] w-[80%] text-center rounded-xl'>
-              Add
-            </div>
+                <div className="w-full text-center bg-black font-bold text-white">
+                  <p className="text-sm">{exercise.name}</p>
+                </div>
 
-          </div>
-          <div className='card flex flex-col justify-between items-center border-2 border-black rounded-md w-40  pt-2 pb-4 mr-2 ml-2 mt-4'>
-            <div className='w-[100%] text-center bg-black font-bold text-white pt-0'>
-              <p className='text-sm'>Flate Bench Press</p>
-            </div>
-            <div className='image w-30 p-2  h-30 min-h-32'>
-              <img src={flat_benchpress} alt="" />
-            </div>
-            <div onClick={() => handleAddClick("Flate Bench Press")} className='cursor-pointer  btn font-bold bg-[#ed563b] w-[80%]  text-center rounded-xl'>
-              Add
-            </div>
-          </div>
-        </div>
+                <div className="image w-30 p-2 h-30 min-h-32">
+                  <img src={"http://localhost:5000" + exercise.img} alt={exercise.name} />
+                </div>
 
-        <div className='row flex justify-center items-center'>
-          <div className='card flex flex-col justify-between items-center border-2 border-black rounded-md w-40  pt-2 pb-4 mr-2 ml-2 mt-4'>
-            <div className='w-[100%] text-center bg-black font-bold text-white pt-0'>
-              <p className='text-sm'>Decline Bench Press</p>
-            </div>
-            <div className='image w-30 p-2 h-30 min-h-32'>
-              <img src={Decline_Bench_Press} alt="" />
-            </div>
-            <div onClick={() => handleAddClick("Decline Bench Press")} className='cursor-pointer  btn font-bold bg-[#ed563b] w-[80%]  text-center rounded-xl'>
-              Add
-            </div>
-          </div>
-          <div className='card flex flex-col justify-between items-center border-2 border-black rounded-md w-40  pt-2 pb-4 mr-2 ml-2 mt-4'>
-            <div className='w-[100%] text-center bg-black font-bold text-white pt-0'>
-              <p className='text-sm'>Close Grip Bench Press</p>
-            </div>
-            <div className='image w-30 p-2  h-30 min-h-32'>
-              <img src={Close_Grip_Bench_Press} alt="" />
-            </div>
-            <div onClick={() => handleAddClick("Close Grip Bench Press")} className='cursor-pointer  btn font-bold bg-[#ed563b] w-[80%]  text-center rounded-xl'>
-              Add
-            </div>
-          </div>
-        </div>
-
-        <div className='row flex justify-center items-center'>
-          <div className='card flex flex-col justify-between items-center border-2 border-black rounded-md w-40  pt-2 pb-4 mr-2 ml-2 mt-4'>
-            <div className='w-[100%] text-center bg-black font-bold text-white pt-0'>
-              <p className='text-sm'>Push Up</p>
-            </div>
-            <div className='image w-30 p-2 h-30 min-h-32'>
-              <img src={push_up} alt="" />
-            </div>
-            <div onClick={() => handleAddClick("Push Up")} className='cursor-pointer  btn font-bold bg-[#ed563b] w-[80%]  text-center rounded-xl'>
-              Add
-            </div>
-          </div>
-          <div className='card flex flex-col justify-between items-center border-2 border-black rounded-md w-40  pt-2 pb-4 mr-2 ml-2 mt-4'>
-            <div className='w-[100%] text-center bg-black font-bold text-white pt-0'>
-              <p className='text-sm'>Incline Push Up</p>
-            </div>
-            <div className='image w-30 p-2  h-30 min-h-32'>
-              <img src={incline_push_up} alt="" />
-            </div>
-            <div onClick={() => handleAddClick("Incline Push Up")} className='cursor-pointer  btn font-bold bg-[#ed563b] w-[80%]  text-center rounded-xl'>
-              Add
-            </div>
-          </div>
-        </div>
-
-        <div className='row flex justify-center items-center'>
-          <div className='card flex flex-col justify-between items-center border-2 border-black rounded-md w-40  pt-2 pb-4 mr-2 ml-2 mt-4'>
-            <div className='w-[100%] text-center bg-black font-bold text-white pt-0'>
-              <p className='text-sm'>Decline Push Up</p>
-            </div>
-            <div className='image w-30 p-2 h-30 min-h-32'>
-              <img src={decline_push_up} alt="" />
-            </div>
-            <div onClick={() => handleAddClick("Decline Push Up")} className='cursor-pointer  btn font-bold bg-[#ed563b] w-[80%]  text-center rounded-xl'>
-              Add
-            </div>
-          </div>
-          <div className='card flex flex-col justify-between items-center border-2 border-black rounded-md w-40  pt-2 pb-4 mr-2 ml-2 mt-4'>
-            <div className='w-[100%] text-center bg-black font-bold text-white pt-0'>
-              <p className='text-sm'>Diamond Push Up</p>
-            </div>
-            <div className='image w-30 p-2  h-30 min-h-32'>
-              <img src={diamond_push_up} alt="" />
-            </div>
-            <div onClick={() => handleAddClick("Diamond Push Up")} className='cursor-pointer  btn font-bold bg-[#ed563b] w-[80%]  text-center rounded-xl'>
-              Add
-            </div>
-          </div>
-        </div>
+                <div
+                  onClick={() => handleAddClick(exercise.name)}
+                  className="cursor-pointer btn font-bold bg-[#ed563b] w-[80%] text-center rounded-xl"
+                >
+                  Add
+                </div>
+              </div>
+            ))
+          ) : (
+            <p></p>
+          )}
 
 
 
-        <div className='row flex justify-center items-center'>
-          <div className='card flex flex-col justify-between items-center border-2 border-black rounded-md w-40  pt-2 pb-4 mr-2 ml-2 mt-4'>
-            <div className='w-[100%] text-center bg-black font-bold text-white pt-0'>
-              <p className='text-sm'>Standerd Pull Up</p>
-            </div>
-            <div className='image w-30 p-2 h-30 min-h-32'>
-              <img src={standerd_pull_up} alt="" />
-            </div>
-            <div onClick={() => handleAddClick("Standerd Pull Up")} className='cursor-pointer  btn font-bold bg-[#ed563b] w-[80%]  text-center rounded-xl'>
-              Add
-            </div>
-          </div>
-          <div className='card flex flex-col justify-between items-center border-2 border-black rounded-md w-40  pt-2 pb-4 mr-2 ml-2 mt-4'>
-            <div className='w-[100%] text-center bg-black font-bold text-white pt-0'>
-              <p className='text-sm'>Narrow Grip Chin Up</p>
-            </div>
-            <div className='image w-30 p-2  h-30 min-h-32'>
-              <img src={narrow_grip_Chin_Up} alt="" />
-            </div>
-            <div onClick={() => handleAddClick("Narrow Grip Chin Up")} className='cursor-pointer  btn font-bold bg-[#ed563b] w-[80%]  text-center rounded-xl'>
-              Add
-            </div>
-          </div>
-        </div>
-
-        <div className='row flex justify-center items-center'>
-          <div className='card flex flex-col justify-between items-center border-2 border-black rounded-md w-40  pt-2 pb-4 mr-2 ml-2 mt-4'>
-            <div className='w-[100%] text-center bg-black font-bold text-white pt-0'>
-              <p className='text-sm'>Shoulder Press</p>
-            </div>
-            <div className='image w-30 p-2 h-30 min-h-32'>
-              <img src={shoulder_press} alt="" />
-            </div>
-            <div onClick={() => handleAddClick("Shoulder Press")} className='cursor-pointer  btn font-bold bg-[#ed563b] w-[80%]  text-center rounded-xl'>
-              Add
-            </div>
-          </div>
-          <div className='card flex flex-col justify-between items-center border-2 border-black rounded-md w-40  pt-2 pb-4 mr-2 ml-2 mt-4'>
-            <div className='w-[100%] text-center bg-black font-bold text-white pt-0'>
-              <p className='text-sm'>Arnold Press</p>
-            </div>
-            <div className='image w-30 p-2  h-30 min-h-32'>
-              <img src={arnold_press} alt="" />
-            </div>
-            <div onClick={() => handleAddClick("Arnold Press")} className='cursor-pointer  btn font-bold bg-[#ed563b] w-[80%]  text-center rounded-xl'>
-              Add
-            </div>
-          </div>
-        </div>
-
-
-        <div className='row flex justify-center items-center'>
-          <div className='card flex flex-col justify-between items-center border-2 border-black rounded-md w-40  pt-2 pb-4 mr-2 ml-2 mt-4'>
-            <div className='w-[100%] text-center bg-black font-bold text-white pt-0 mb-3'>
-              <p className='text-sm'>Add New Cardio</p>
-            </div>
-            <div className='image w-30 h-30 min-h-32 text-7xl text-center flex justify-around items-center border-2 border-[#ed563b] rounded-full'>
-              <RiAddFill />
+          <div className='row flex justify-center items-center' onClick={() => setAddExercises(true)}>
+            <div className='card flex flex-col justify-between items-center border-2 border-black rounded-md w-40  pt-2 pb-4 mr-2 ml-2 mt-4'>
+              <div className='w-[100%] text-center bg-black font-bold text-white pt-0 mb-3'>
+                <p className='text-sm'>Add New Cardio</p>
+              </div>
+              <div className='image w-30 h-30 min-h-32 text-7xl text-center flex justify-around items-center border-2 border-[#ed563b] rounded-full'>
+                <RiAddFill />
+              </div>
             </div>
           </div>
         </div>
@@ -228,12 +195,12 @@ const Exercises = () => {
 
 
       <div className="p-4">
-        <button
+        {/* <button
           onClick={() => setShowModal(true)}
           className="bg-[#ed563b] text-white px-4 py-2 rounded hover:bg-[#e54427]"
         >
           Open Modal
-        </button>
+        </button> */}
 
         {showModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 pointer-events-none">
@@ -293,6 +260,54 @@ const Exercises = () => {
             </div>
           </div>
         )}
+
+        {addExercieseModel && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 pointer-events-none">
+            <div className="relative bg-white w-80 p-6 rounded-xl shadow pointer-events-auto">
+              <button
+                className="absolute top-3 right-3 text-xl font-bold cursor-pointer"
+                onClick={() => setAddExercises(false)}
+              >
+                ✕
+              </button>
+
+              <h2 className="text-lg font-semibold mb-4">Add New Exercise</h2>
+              <form onSubmit={handleFormSubmitExercises} encType="multipart/form-data">
+                <div className="mb-4">
+                  <label className="block mb-1 font-medium">Title Of Exercise</label>
+                  <input
+                    type="text"
+                    name="title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-gray-400"
+                    required
+                  />
+                </div>
+
+                <div className="mb-4">
+                  <label className="block mb-1 font-medium">Image Of Exercise</label>
+                  <input
+                    type="file"
+                    name="image"
+                    onChange={(e) => setImage(e.target.files[0])}
+                    className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-gray-400"
+                    required
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="bg-[#ed563b] text-white px-4 py-2 rounded hover:bg-[#e54427] w-[100%] m-auto cursor-pointer"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Adding..." : "ADD NEW EXERCISES"}
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
+
       </div>
 
     </div>

@@ -1,33 +1,43 @@
 const Exercise = require("../models/ExerciseModel");
 
-// Create a new exercise entry
+// Create a new exercise entry (Uses Auth Middleware)
 exports.createExercise = async (req, res) => {
   try {
-    const { userId, exercise, reps, sets, weight } = req.body;
+    const { exercise, reps, sets, weight } = req.body;
+    const userId = req.user.id; // Extract user ID from token middleware
+
+    if (!exercise || !reps || !sets || !weight) {
+      return res.status(400).json({ success: false, message: "All fields are required" });
+    }
+
     const newExercise = new Exercise({ userId, exercise, reps, sets, weight });
     await newExercise.save();
+
     res.status(201).json({ success: true, data: newExercise });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// Get all exercises for a user
+// Get all exercises for the logged-in user
 exports.getExercisesByUser = async (req, res) => {
   try {
-    const { userId } = req.params;
+    const userId = req.user.id;
     const exercises = await Exercise.find({ userId });
+
     res.status(200).json({ success: true, data: exercises });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// Get a single exercise by ID
+// Get a single exercise by ID (User can only access their own)
 exports.getExerciseById = async (req, res) => {
   try {
     const exercise = await Exercise.findById(req.params.id);
-    if (!exercise) return res.status(404).json({ success: false, message: "Exercise not found" });
+    if (!exercise || exercise.userId.toString() !== req.user.id) {
+      return res.status(404).json({ success: false, message: "Exercise not found" });
+    }
 
     res.status(200).json({ success: true, data: exercise });
   } catch (error) {
@@ -38,12 +48,17 @@ exports.getExerciseById = async (req, res) => {
 // Update an exercise by ID
 exports.updateExercise = async (req, res) => {
   try {
+    const exercise = await Exercise.findById(req.params.id);
+
+    if (!exercise || exercise.userId.toString() !== req.user.id) {
+      return res.status(404).json({ success: false, message: "Exercise not found" });
+    }
+
     const updatedExercise = await Exercise.findByIdAndUpdate(
       req.params.id,
       req.body,
       { new: true, runValidators: true }
     );
-    if (!updatedExercise) return res.status(404).json({ success: false, message: "Exercise not found" });
 
     res.status(200).json({ success: true, data: updatedExercise });
   } catch (error) {
@@ -54,9 +69,13 @@ exports.updateExercise = async (req, res) => {
 // Delete an exercise by ID
 exports.deleteExercise = async (req, res) => {
   try {
-    const deletedExercise = await Exercise.findByIdAndDelete(req.params.id);
-    if (!deletedExercise) return res.status(404).json({ success: false, message: "Exercise not found" });
+    const exercise = await Exercise.findById(req.params.id);
 
+    if (!exercise || exercise.userId.toString() !== req.user.id) {
+      return res.status(404).json({ success: false, message: "Exercise not found" });
+    }
+
+    await exercise.deleteOne();
     res.status(200).json({ success: true, message: "Exercise deleted successfully" });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

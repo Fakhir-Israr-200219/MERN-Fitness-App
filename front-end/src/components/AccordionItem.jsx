@@ -17,7 +17,7 @@ const AccordionItem = ({ title, content }) => {
     }, [isOpen]);
 
     return (
-        <div className="border-4 border-[#ed563b] mx-3 px-2 mt-4">
+        <div className="border-4 border-[#ed563b] mx-3 px-2 mt-4 md:ml-25">
             <button
                 onClick={toggleAccordion}
                 className="w-full flex justify-between items-center py-5 text-slate-800"
