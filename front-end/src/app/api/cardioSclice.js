@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 export const cardioApi = createApi({
   reducerPath: 'cardioApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: 'http://localhost:5000/api/cardio',
+    baseUrl: 'http://localhost:5000/api/cardios',
     prepareHeaders: (headers, { getState }) => {
         const token = localStorage.getItem('token');// Assuming token is stored in Redux auth slice
       if (token) {

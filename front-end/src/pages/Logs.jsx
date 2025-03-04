@@ -27,26 +27,43 @@ const Logs = () => {
     fetchLogs();
   }, [dispatch, token]);
 
+  // const groupLogsByDate = (data) => {
+  //   const logsByDate = {};
+
+  //   [...data.exercises, ...data.cardios].forEach((item) => {
+  //     const date = new Date(item.createdAt).toLocaleDateString();
+
+  //     if (!logsByDate[date]) {
+  //       logsByDate[date] = { exercises: [], cardios: [] };
+  //     }
+
+  //     if (item.exercise) {
+  //       logsByDate[date].exercises.push({ ...item });
+  //     } else {
+  //       logsByDate[date].cardios.push({ ...item });
+  //     }
+  //   });
+
+  //   return logsByDate;
+  // };
   const groupLogsByDate = (data) => {
     const logsByDate = {};
-
-    [...data.exercises, ...data.cardios].forEach((item) => {
+  
+    data.exercises.forEach((item) => {
       const date = new Date(item.createdAt).toLocaleDateString();
-
-      if (!logsByDate[date]) {
-        logsByDate[date] = { exercises: [], cardios: [] };
-      }
-
-      if (item.exercise) {
-        logsByDate[date].exercises.push({ ...item });
-      } else {
-        logsByDate[date].cardios.push({ ...item });
-      }
+      if (!logsByDate[date]) logsByDate[date] = { exercises: [], cardios: [] };
+      logsByDate[date].exercises.push(item);
     });
-
+  
+    data.cardios.forEach((item) => {
+      const date = new Date(item.createdAt).toLocaleDateString();
+      if (!logsByDate[date]) logsByDate[date] = { exercises: [], cardios: [] };
+      logsByDate[date].cardios.push(item);
+    });
+  
     return logsByDate;
   };
-
+  
   return (
     <div>
       <AnimatedLine />

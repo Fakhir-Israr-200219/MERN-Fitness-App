@@ -7,5 +7,6 @@ const validateToken = require('../middleware/validateTokenHandler'); // Import J
 router.post('/add', validateToken, cardioController.addCardio);
 router.get('/user/:userId', validateToken, cardioController.getCardiosByUser);
 router.delete('/:id', validateToken, cardioController.deleteCardio);
+router.put('/:id', validateToken, cardioController.updateCardio);
 
 module.exports = router;
