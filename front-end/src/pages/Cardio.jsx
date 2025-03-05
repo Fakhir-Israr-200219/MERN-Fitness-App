@@ -160,7 +160,7 @@ const Cardio = () => {
                 </div>
 
                 <div
-                  onClick={() => handleAddClick(exercise.name)}
+                  onClick={() => handleAddClick(exercise.title)}
                   className="cursor-pointer btn font-bold bg-[#ed563b] w-[80%] text-center rounded-xl"
                 >
                   Add
