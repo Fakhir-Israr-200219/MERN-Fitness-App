@@ -1,4 +1,5 @@
 const Exercise = require("../models/ExerciseModel");
+const workoutLogs = require("../models/workoutLogs");
 
 // Create a new exercise entry (Uses Auth Middleware)
 exports.createExercise = async (req, res) => {
@@ -12,6 +13,14 @@ exports.createExercise = async (req, res) => {
 
     const newExercise = new Exercise({ userId, exercise, reps, sets, weight });
     await newExercise.save();
+
+    const log = new workoutLogs({
+      userId,
+      workoutId: newExercise._id,
+      workoutType: "Exercise",
+      sets: newExercise.sets
+    });
+    await log.save();
 
     res.status(201).json({ success: true, data: newExercise });
   } catch (error) {
@@ -76,6 +85,7 @@ exports.deleteExercise = async (req, res) => {
     }
 
     await exercise.deleteOne();
+    await workoutLogs.findOneAndDelete({ workoutId });
     res.status(200).json({ success: true, message: "Exercise deleted successfully" });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

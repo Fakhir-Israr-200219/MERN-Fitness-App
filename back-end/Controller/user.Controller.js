@@ -5,7 +5,9 @@ const userModel = require("../models/user.Model");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
-
+const WorkoutLog = require("../models/workoutLogs");
+const Cardio = require("../models/CardioModel");
+const Exercise = require("../models/ExerciseModel");
 // Ensure uploads folder exists
 // const uploadDir = path.join(__dirname, "../uploads");
 // if (!fs.existsSync(uploadDir)) {
@@ -81,6 +83,7 @@ const loginUser = asyncHandler(async (req, res) => {
           userName: user.userName,
           email: user.email,
           id: user.id,
+          profile_image: user.profile_image,
         },
       },
       process.env.ACCESS_TOKEN_SECRIT,
@@ -100,8 +103,33 @@ const currentUser = asyncHandler(async (req, res) => {
   res.status(200).json(req.user);
 });
 
+const currentUserLogs = asyncHandler(async (req, res) => {
+  try {
+    const logs = await WorkoutLog.find();
+    const exerciseLogs = await Exercise.find();
+    const cardioLogs = await Cardio.find();
+
+    let totalWorkoutSets = logs.reduce((acc, log) => acc + log.sets, 0);
+    let totalExerciseSets = exerciseLogs.reduce((acc, log) => acc + log.sets, 0);
+    let totalCardioSets = cardioLogs.reduce((acc, log) => acc + log.sets, 0);
+
+    res.json({
+        totalWorkoutSets,
+        totalExerciseSets,
+        totalCardioSets,
+        logs,
+        exerciseLogs,
+        cardioLogs
+    });
+} catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+}
+});
+
 module.exports = {
   registerUser,
   loginUser,
   currentUser,
+  currentUserLogs,
 };

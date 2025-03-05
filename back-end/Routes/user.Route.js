@@ -1,7 +1,7 @@
 const express = require("express");
 const asyncHandler = require("../middleware/errorHandler");
 const multer = require("multer");
-const { registerUser, loginUser, currentUser } = require("../Controller/user.Controller");
+const { registerUser, loginUser, currentUser,currentUserLogs } = require("../Controller/user.Controller");
 const validateToken = require("../middleware/validateTokenHandler");
 
 const router = express.Router();
@@ -21,5 +21,6 @@ const upload = multer({ storage: storage });
 router.post("/register", upload.single("profile_image"), registerUser);
 router.post("/login", loginUser);
 router.get("/current", validateToken, currentUser);
+router.get("/currentlog", validateToken, currentUserLogs);
 
 module.exports = router;

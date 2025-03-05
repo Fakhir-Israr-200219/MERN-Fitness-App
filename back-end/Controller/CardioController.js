@@ -1,4 +1,5 @@
 const Cardio = require("../models/CardioModel");
+const workoutLogs = require("../models/workoutLogs");
 
 // Create a new cardio exercise (Uses Auth Middleware)
 exports.addCardio = async (req, res) => {
@@ -13,6 +14,14 @@ exports.addCardio = async (req, res) => {
 
     const newCardio = new Cardio({ userId, exercise, duration, sets });
     await newCardio.save();
+
+    const log = new workoutLogs({
+      userId,
+      workoutId: newCardio._id,
+      workoutType: "Cardio",
+      sets: newCardio.sets
+    });
+    await log.save();
 
     res.status(201).json({ success: true, data: newCardio });
   } catch (error) {
@@ -77,6 +86,7 @@ exports.deleteCardio = async (req, res) => {
     }
 
     await cardio.deleteOne();
+    await workoutLogs.findOneAndDelete({ workoutId });
     res.status(200).json({ success: true, message: "Cardio exercise deleted successfully" });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
