@@ -8,6 +8,7 @@ const fs = require("fs");
 const WorkoutLog = require("../models/workoutLogs");
 const Cardio = require("../models/CardioModel");
 const Exercise = require("../models/ExerciseModel");
+const mongoose = require("mongoose");
 // Ensure uploads folder exists
 // const uploadDir = path.join(__dirname, "../uploads");
 // if (!fs.existsSync(uploadDir)) {
@@ -105,26 +106,85 @@ const currentUser = asyncHandler(async (req, res) => {
 
 const currentUserLogs = asyncHandler(async (req, res) => {
   try {
-    const logs = await WorkoutLog.find();
-    const exerciseLogs = await Exercise.find();
-    const cardioLogs = await Cardio.find();
+    const userId = new mongoose.Types.ObjectId(req.user.id); // Convert to ObjectId
 
-    let totalWorkoutSets = logs.reduce((acc, log) => acc + log.sets, 0);
-    let totalExerciseSets = exerciseLogs.reduce((acc, log) => acc + log.sets, 0);
-    let totalCardioSets = cardioLogs.reduce((acc, log) => acc + log.sets, 0);
+    const logs = await WorkoutLog.aggregate([
+      {
+        $match: { userId: userId }, // Ensure correct type comparison
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: "%Y-%m-%d",
+              date: "$createdAt",
+              timezone: "Asia/Karachi", // ✅ Converts to Pakistan Time
+            },
+          },
+          totalSets: { $sum: "$sets" }, // Sum sets per date
+        },
+      },
+      {
+        $sort: { _id: 1 }, // Sort by date (ascending)
+      },
+    ]);
+
+    const exercises = await Exercise.aggregate([
+      {
+        $match: { userId: userId }, // Ensure correct type comparison
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: "%Y-%m-%d",
+              date: "$createdAt",
+              timezone: "Asia/Karachi", // ✅ Converts to Pakistan Time
+            },
+          },
+          totalSets: { $sum: "$sets" }, // Sum sets per date
+        },
+      },
+      {
+        $sort: { _id: 1 }, // Sort by date (ascending)
+      },
+    ]);
+
+    const cardio = await Cardio.aggregate([
+      {
+        $match: { userId: userId }, // Ensure correct type comparison
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: "%Y-%m-%d",
+              date: "$createdAt",
+              timezone: "Asia/Karachi", // ✅ Converts to Pakistan Time
+            },
+          },
+          totalSets: { $sum: "$sets" }, // Sum sets per date
+        },
+      },
+      {
+        $sort: { _id: 1 }, // Sort by date (ascending)
+      },
+    ]);
+
+
+    console.table(logs)
+    console.table(exercises)
+    console.table(cardio)
 
     res.json({
-        totalWorkoutSets,
-        totalExerciseSets,
-        totalCardioSets,
-        logs,
-        exerciseLogs,
-        cardioLogs
+      logs,
+      exercises,
+      cardio,
     });
-} catch (error) {
+  } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server Error" });
-}
+  }
 });
 
 module.exports = {
