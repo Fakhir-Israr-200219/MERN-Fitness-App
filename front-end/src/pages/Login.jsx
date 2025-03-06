@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import logo from "../assets/logo_black.png";
 
@@ -16,22 +16,22 @@ const Login = () => {
         email,
         password,
       });
-  
+
       // Extract token from response
       const token = response.data.accessToken; // FIX: Correct key name
       console.log("Login successful:", response.data);
-  
+
       // Save token in localStorage
       localStorage.setItem("token", token);
-  
+
       // Redirect to dashboard or home
-      navigate("/exercises"); 
+      navigate("/exercises");
     } catch (error) {
       console.error("Login failed:", error);
       setError("Invalid email or password. Please try again.");
     }
   };
-  
+
 
   return (
     <div className="login flex flex-col justify-center items-center min-h-screen">
@@ -63,7 +63,9 @@ const Login = () => {
         </div>
 
         {error && <p className="text-red-500">{error}</p>}
-
+        <p className="p-2 m-2">
+          Go to <Link to="/signin" className="text-[#ed563b]">Sign In</Link>
+        </p>
         {/* Login Button */}
         <button
           type="button"

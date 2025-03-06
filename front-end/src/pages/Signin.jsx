@@ -124,7 +124,7 @@ const Signin = () => {
                 </div>
 
                 <p className="p-2 m-2">
-                    Go to <Link to="/login" className="text-[#ed563b]">Sign In</Link>
+                    Go to <Link to="/login" className="text-[#ed563b]">Log In</Link>
                 </p>
 
                 <button
