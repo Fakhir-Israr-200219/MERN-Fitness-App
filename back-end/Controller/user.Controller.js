@@ -108,78 +108,89 @@ const currentUserLogs = asyncHandler(async (req, res) => {
   try {
     const userId = new mongoose.Types.ObjectId(req.user.id); // Convert to ObjectId
 
+    // Fetch original planned sets from WorkoutLog
     const logs = await WorkoutLog.aggregate([
-      {
-        $match: { userId: userId }, // Ensure correct type comparison
-      },
+      { $match: { userId: userId } },
       {
         $group: {
           _id: {
             $dateToString: {
               format: "%Y-%m-%d",
               date: "$createdAt",
-              timezone: "Asia/Karachi", // ✅ Converts to Pakistan Time
+              timezone: "Asia/Karachi",
             },
           },
-          totalSets: { $sum: "$sets" }, // Sum sets per date
+          plannedSets: { $sum: "$sets" }, // Total planned sets per day
         },
       },
-      {
-        $sort: { _id: 1 }, // Sort by date (ascending)
-      },
+      { $sort: { _id: 1 } },
     ]);
 
+    // Fetch remaining sets from Exercise
     const exercises = await Exercise.aggregate([
-      {
-        $match: { userId: userId }, // Ensure correct type comparison
-      },
+      { $match: { userId: userId } },
       {
         $group: {
           _id: {
             $dateToString: {
               format: "%Y-%m-%d",
               date: "$createdAt",
-              timezone: "Asia/Karachi", // ✅ Converts to Pakistan Time
+              timezone: "Asia/Karachi",
             },
           },
-          totalSets: { $sum: "$sets" }, // Sum sets per date
+          remainingSets: { $sum: "$sets" }, // Remaining sets per day
         },
       },
-      {
-        $sort: { _id: 1 }, // Sort by date (ascending)
-      },
+      { $sort: { _id: 1 } },
     ]);
 
+    // Fetch remaining sets from Cardio
     const cardio = await Cardio.aggregate([
-      {
-        $match: { userId: userId }, // Ensure correct type comparison
-      },
+      { $match: { userId: userId } },
       {
         $group: {
           _id: {
             $dateToString: {
               format: "%Y-%m-%d",
               date: "$createdAt",
-              timezone: "Asia/Karachi", // ✅ Converts to Pakistan Time
+              timezone: "Asia/Karachi",
             },
           },
-          totalSets: { $sum: "$sets" }, // Sum sets per date
+          remainingSets: { $sum: "$sets" }, // Remaining sets per day
         },
       },
-      {
-        $sort: { _id: 1 }, // Sort by date (ascending)
-      },
+      { $sort: { _id: 1 } },
     ]);
 
+    // Create a map for remaining sets (Exercise + Cardio)
+    const remainingSetsMap = {};
 
-    console.table(logs)
-    console.table(exercises)
-    console.table(cardio)
+    exercises.forEach(({ _id, remainingSets }) => {
+      remainingSetsMap[_id] = (remainingSetsMap[_id] || 0) + remainingSets;
+    });
+
+    cardio.forEach(({ _id, remainingSets }) => {
+      remainingSetsMap[_id] = (remainingSetsMap[_id] || 0) + remainingSets;
+    });
+
+    // Calculate progress for each day
+    const progressData = logs.map(({ _id, plannedSets }) => {
+      const remainingSets = remainingSetsMap[_id] || 0;
+      const completedSets = plannedSets - remainingSets;
+      const progressPercentage =
+        plannedSets > 0 ? (completedSets / plannedSets) * 100 : 0;
+
+      return {
+        date: _id,
+        plannedSets,
+        completedSets,
+        remainingSets,
+        progressPercentage: progressPercentage.toFixed(2), // Round to 2 decimal places
+      };
+    });
 
     res.json({
-      logs,
-      exercises,
-      cardio,
+      progress: progressData,
     });
   } catch (error) {
     console.error(error);

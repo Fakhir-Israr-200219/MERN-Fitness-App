@@ -3,6 +3,7 @@ import AnimatedLine from '../components/AnimatedLine'
 import { FaTwitter } from "react-icons/fa";
 import { FaGithub } from "react-icons/fa";
 import { FaLinkedin } from "react-icons/fa";
+import axios from "axios";
 
 const Options = () => {
 
@@ -28,6 +29,22 @@ const Options = () => {
   //   setCurrentMonth(newMonth);
   //   setYear(newYear);
   // };
+  const [progressData, setProgressData] = useState([]);
+
+  useEffect(() => {
+    const fetchProgress = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.get("http://localhost:5000/user/currentlog", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setProgressData(response.data.progress);
+      } catch (error) {
+        console.error("Error fetching progress data:", error);
+      }
+    };
+    fetchProgress();
+  }, []);
 
   const [user, setUser] = useState(null);
 
@@ -88,22 +105,27 @@ const Options = () => {
             ) : (
               <p>Loading...</p> // Prevents the error
             )}
-            <div className="bg-white shadow-md rounded-lg p-4 w-80 border">
-              {/* Date and Progress Text */}
-              <div className="flex justify-between text-sm font-semibold text-gray-700">
-                <span>Date: 2/1/2024</span>
-                <span>28%</span>
-              </div>
 
-              {/* Progress Bar */}
-              <div className="relative w-full h-4 bg-gray-300 rounded-full mt-2">
-                <div
-                  className="absolute h-4 bg-red-500 rounded-full"
-                  style={{ width: "28%" }} // Dynamically set width
-                ></div>
-              </div>
-            </div>
+            {progressData.map((entry) => (
+              <div
+                key={entry.date}
+                className="bg-white shadow-md rounded-lg p-4 w-80 border mb-4"
+              >
+                {/* Date and Progress Text */}
+                <div className="flex justify-between text-sm font-semibold text-gray-700">
+                  <span>Date: {entry.date}</span>
+                  <span>{entry.progressPercentage}%</span>
+                </div>
 
+                {/* Progress Bar */}
+                <div className="relative w-full h-4 bg-gray-300 rounded-full mt-2">
+                  <div
+                    className="absolute h-4 bg-red-500 rounded-full"
+                    style={{ width: `${entry.progressPercentage}%` }}
+                  ></div>
+                </div>
+              </div>
+            ))}
 
 
 
